@@ -47,8 +47,8 @@ const Detail = () => {
 
     function handleWhatsapp(){
         const cel = data.point.whatsapp.replace('-','');
-        
-        Linking.openURL(`whatsapp://send?phone=${55+''+cel}&text=Tenho interesse sobre a coleta de resíduos`);
+
+        Linking.openURL(`whatsapp://send?phone=${55+''+31992955260}&text=Tenho interesse sobre a coleta de resíduos`);
     }
 
     return (

@@ -1,25 +1,100 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Feather as Icon } from '@expo/vector-icons';
-import { StyleSheet, View, Text, Image, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, Image, ImageBackground, Alert } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios';
 
 const Home = () => {
+
+    interface UfAPI {
+        sigla: string
+        nome: string;
+    }
+
+    interface CityAPI {
+        nome: string;
+    }
+
+    interface SelectPicker {
+        value: string;
+        label: string;
+    }
+
     const navigation = useNavigation();
+
+    const [ufs, setUfs] = useState<SelectPicker[]>([]);
+    const [selectedUf, setSelectedUf] = useState('');
+    const [cities, setCities] = useState<SelectPicker[]>([]);
+    const [selectedCity, setSelectedCity] = useState('0');
+
+    useEffect(() => {
+
+        axios.get<UfAPI[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome')
+            .then(response => {
+                const states = response.data.map(item => {
+                    return { value: item.sigla, label: item.sigla }
+                });
+                setUfs(states);
+            })
+            .catch(e => alert('Erro ao cerregar as UF: ' + e));
+    }, []);
+
+    useEffect(() => {
+
+        if (selectedUf === '0') return;
+
+        axios.get<CityAPI[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`)
+            .then(response => {
+                const cityNames = response.data.map(item => {
+                    return { value: item.nome, label: item.nome }
+                });
+                setCities(cityNames);
+            })
+            .catch(e => alert('Erro ao cerregar as cidades: ' + e));
+    }, [selectedUf]);
+
+    const handleNavigatePoint = () => {
+        if (selectedUf === undefined || selectedUf === '' || selectedCity === undefined || selectedCity === '') {
+            Alert.alert('Ooops...', 'Selecione o estado!');
+            return;
+        }
+        navigation.navigate('Points', { uf: selectedUf, city: selectedCity });
+    }
+
     return (
         <ImageBackground style={styles.container}
             source={require('../../assets/home-background.png')}
-            imageStyle={{ width: 274, height: 368}}>
+            imageStyle={{ width: 274, height: 368 }}>
             <View style={styles.main}>
                 <Image source={require('../../assets/logo.png')} />
                 <Text style={styles.title}>Seu marketplace de coleta de resíduos</Text>
                 <Text style={styles.description}>Ajudamos pessoas a encontrem pontos de coleta de forma eficiente.</Text>
             </View>
 
+            <View style={{ paddingBottom: 50 }}>
+                <RNPickerSelect
+                    placeholder={{ label: 'Selecione o estado' }}
+                    value={selectedUf}
+                    onValueChange={(value) => setSelectedUf(value)}
+                    items={ufs}
+                />
+            </View>
+
+            <View style={{ paddingBottom: 50, }}>
+                <RNPickerSelect
+                    placeholder={{ label: 'Selecione a cidade' }}
+                    value={selectedCity}
+                    onValueChange={(value) => setSelectedCity(value)}
+                    items={cities}
+                />
+            </View>
+
             <View style={styles.footer}>
-                <RectButton style={styles.button} onPress={() => {navigation.navigate('Points')}}>
+                <RectButton style={styles.button} onPress={handleNavigatePoint}>
                     <View style={styles.buttonIcon}>
-                        <Text> <Icon name="arrow-right" color="#FFF" size={20}/> </Text>
+                        <Text> <Icon name="arrow-right" color="#FFF" size={20} /> </Text>
                     </View>
                     <Text style={styles.buttonText}>
                         Entrar
