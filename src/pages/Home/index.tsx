@@ -75,6 +75,12 @@ const Home = () => {
 
             <View style={{ paddingBottom: 50 }}>
                 <RNPickerSelect
+                    style={{
+                        viewContainer: {
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#322153'
+                        }
+                    }}
                     placeholder={{ label: 'Selecione o estado' }}
                     value={selectedUf}
                     onValueChange={(value) => setSelectedUf(value)}
@@ -84,6 +90,12 @@ const Home = () => {
 
             <View style={{ paddingBottom: 50, }}>
                 <RNPickerSelect
+                    style={{
+                        viewContainer: {
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#322153'
+                        }
+                    }}
                     placeholder={{ label: 'Selecione a cidade' }}
                     value={selectedCity}
                     onValueChange={(value) => setSelectedCity(value)}
